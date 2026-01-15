@@ -36,7 +36,7 @@ class Scraper:
         return self.soup.find("div", id="mw-content-text")
 
     def get_text_content(self):
-        return self._get_content().get_text()
+        return self._get_content().get_text(separator=' ')
 
     def get_summary(self):
         content = self._get_content()

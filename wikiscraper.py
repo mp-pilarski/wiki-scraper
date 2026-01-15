@@ -24,8 +24,9 @@ class WikiScraper:
 
     def count_words(self):
         text_content = self.scraper.get_text_content()
+        print(text_content)
         self.analyzer.count_words(text_content)
-        pass
+        self.analyzer.update_word_counts()
 
     def analyze_relative_word_frequency(self, mode, count, chart_path=None):
 
@@ -60,9 +61,9 @@ class WikiScraper:
                     print(f"Number of links: {len(links)}")
                 #todo: może zrobic funkcyjnie (?) oraz ulepszyc, zeby niepotrzebnie nie wstawialo do kolejki elementow, ktore juz sa w kolejce
                 #todo: dodatkowo fraza powinna być znormalizowana
-                #todo: metoda nie jest deterministyczna -> w zaleznosci od wykonania zwraca rozne wyniki
                 for link in links:
                     link = self._link_to_phrase(link)
                     if link not in visited:
                         queue.append((link, cur_depth + 1))
             time.sleep(wait_time)
+        self.analyzer.update_word_counts()
