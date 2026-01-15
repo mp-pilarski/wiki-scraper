@@ -91,4 +91,21 @@ class Analyzer:
         return df
 
     def generate_chart(self, df, chart_path):
-        pass
+        df_plot = df.set_index('Word')
+        ax = df_plot[['Frequency in article', 'Frequency in language']].plot(
+            kind='bar',
+            figsize=(12, 6),
+            color=['#f1c40f', '#e74c3c'],
+            width=0.8,
+            edgecolor='black'
+        )
+
+        plt.title('Frequency of some words on Wiki', fontsize=16)
+        plt.ylabel('Frequency')
+        plt.xlabel('Word')
+        plt.xticks(rotation=0)
+        plt.grid(axis='y', linestyle='--', alpha=0.3)
+        plt.legend(['Wiki', 'English'])
+
+        plt.tight_layout()
+        plt.savefig(chart_path)
