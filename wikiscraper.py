@@ -29,8 +29,10 @@ class WikiScraper:
         self.analyzer.update_word_counts()
 
     def analyze_relative_word_frequency(self, mode, count, chart_path=None):
-
-        pass
+        df = self.analyzer.generate_frequency_table(mode, count)
+        print(df)
+        if chart_path is not None:
+            self.analyzer.generate_chart(df, chart_path)
 
     def _link_to_phrase(self, link):
         link = link.replace('/wiki/', '')
