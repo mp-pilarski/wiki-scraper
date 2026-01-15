@@ -1,4 +1,5 @@
 import time
+from urllib.parse import unquote
 from scraper import Scraper
 from analyzer import Analyzer
 import pandas as pd
@@ -30,7 +31,12 @@ class WikiScraper:
 
         pass
 
-    def auto_count_words(self, depth, wait_time):
+    def _link_to_phrase(self, link):
+        link = link.replace('/wiki/', '')
+        link = link.replace('_', ' ')
+        return link
+
+    def auto_count_words(self, depth, wait_time, links_limit = None):
         visited = set()
         queue = [(self.phrase, 0)]
         print(self.phrase)
@@ -39,7 +45,7 @@ class WikiScraper:
             if cur_phrase in visited:
                 continue
             visited.add(cur_phrase)
-            print(f"Current phrase: {cur_phrase} current depth: {cur_depth}")
+            print(f"Current phrase: \"{unquote(cur_phrase)}\" current depth: {cur_depth}")
             #todo: ten fragment trzeba zabezpieczyc przed bledami
             scraper = Scraper(cur_phrase)
             text = scraper.get_text_content()
@@ -47,9 +53,16 @@ class WikiScraper:
 
             if cur_depth < depth:
                 links = scraper.get_internal_links()
-                print(f"number of links: {len(links)}")
+                if links_limit is not None and len(links) > links_limit:
+                    print(f"Number of links: {len(links)} but limited to {min(links_limit, len(links))} links")
+                    links = links[:links_limit]
+                else:
+                    print(f"Number of links: {len(links)}")
                 #todo: może zrobic funkcyjnie (?) oraz ulepszyc, zeby niepotrzebnie nie wstawialo do kolejki elementow, ktore juz sa w kolejce
+                #todo: dodatkowo fraza powinna być znormalizowana
+                #todo: metoda nie jest deterministyczna -> w zaleznosci od wykonania zwraca rozne wyniki
                 for link in links:
+                    link = self._link_to_phrase(link)
                     if link not in visited:
                         queue.append((link, cur_depth + 1))
             time.sleep(wait_time)
