@@ -19,9 +19,8 @@ class WikiScraper:
 
     def table(self, number, first_row_is_header=False):
         table_df = self.scraper.get_table(number, first_row_is_header)
-        table_df = table_df.dropna(axis="columns", how="all")
         table_df.to_csv(f"{self.phrase}.csv")
-        # todo: trzeba jeszcze: "Ponadto program powinien wypisać w formie tabeli , ile razy dana wartość wystąpiła w tabeli z wyłączeniem nagłówków."
+        print(self.analyzer.analyze_table(table_df))
 
 
     def count_words(self):

@@ -81,17 +81,16 @@ class Analyzer:
 
         df = pd.DataFrame(rows)
         df.columns = ['Word', 'Frequency in article', 'Frequency in language']
+        df.set_index('Word', inplace=True)
 
         if mode == "article":
             df.sort_values(by=['Frequency in article'], ascending=False, inplace=True)
         else:
             df.sort_values(by=['Frequency in language'], ascending=False, inplace=True)
-
         return df
 
     def generate_chart(self, df, chart_path):
-        df_plot = df.set_index('Word')
-        ax = df_plot[['Frequency in article', 'Frequency in language']].plot(
+        ax = df[['Frequency in article', 'Frequency in language']].plot(
             kind='bar',
             figsize=(12, 6),
             color=['#f1c40f', '#e74c3c'],
@@ -108,3 +107,8 @@ class Analyzer:
 
         plt.tight_layout()
         plt.savefig(chart_path)
+
+    def analyze_table(self, df):
+        #todo: do pozniejszego uzupelnienia!!!
+        all_values = df.value_counts()
+        return all_values

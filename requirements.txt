@@ -4,3 +4,4 @@ wordfreq
 pandas
 matplotlib
 lxml
+notebook

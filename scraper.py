@@ -42,15 +42,40 @@ class Scraper:
         first_paragraph = content.findAll("p")[0]
         return first_paragraph.get_text()
 
-    def get_table(self, number, header_row=False):
-        # todo: Czy zwracanie dataFrame to nie jest za duzo jak na tą metodę?
-        # todo: sprawdzac czy number jest dobry i rzucac wyjatek
+    def get_table(self, number, first_row_is_header=False):
+        """
+        Scrapes chosen table from wiki page and converts it to the pandas DataFrame.
+
+        Method tries ignoring first_row_is_header when table has a ``<thead>`` or ``<th>`` in first row.
+        :param number: number of the table on page (from 1)
+        :param first_row_is_header: should the first row be treated as header (optional)
+        :return: Pandas dataframe with parsed table data
+        """
         content = self._get_content()
-        html_table = content.findAll("table")[number-1]
-        df = pd.read_html(StringIO(str(html_table)))[0]
-        #TODO: ignorowac nietypowe kolumny, respektowac first-row-is-header
-        #TODO: dane tekstowe trzeba zapisac do pliku szukana fraza.csv (zadanie dla CLI toola)
-        #TODO: Ponadto program powinien wypisać w formie tabeli (tj. z wyraźnie widocznymi kolumnami;wystarczy tak, jak to robi pandas), ile razy dana wartość wystąpiła w tabeli z wyłączeniem nagłówków. => zadanie dla analizatora?
+        html_tables = content.find_all("table")
+        if number < 0 or number > len(html_tables):
+            #todo: czy to powinien być pełnoprawny wyjątek?
+            print(f"There is no table with that number. Found only {len(html_tables)} tables.")
+            return None
+        html_table = html_tables[number-1]
+
+        # Sprawdzenie czy ignorowac first_row_is_header
+        # Pierwszy zwykly wiersz nie jest nagłówkiem, gdy tabela ma <thead> lub <th> w pierwszym wierszu
+        has_thead = html_table.find("thead") is not None
+        has_th = False
+        if not has_thead:
+            first_row = html_table.find("tr")
+            if first_row and first_row.find("th"):
+                has_th = True
+        has_header = has_thead or has_th
+
+        if has_header or not first_row_is_header:
+            df = pd.read_html(StringIO(str(html_table)))[0]
+        else:
+            # Ustawia pierwszy wiersz tabeli jako naglowek
+            df = pd.read_html(str(html_table), header=0)[0]
+        # Czyszczenie kolumn z samymi NaN
+        df = df.dropna(axis="columns", how="all")
         return df
 
     def get_internal_links(self):
