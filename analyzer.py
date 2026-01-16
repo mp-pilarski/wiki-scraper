@@ -53,7 +53,7 @@ class Analyzer:
         for word in distinct_words:
             word = unquote(word)
             current_count[word] = all_words.count(word)
-            self.word_count[word] = current_count.get(word, 0) +all_words.count(word)
+            self.word_count[word] = self.word_count.get(word, 0) + all_words.count(word)
         return current_count
 
     def generate_frequency_table(self, mode, count):

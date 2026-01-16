@@ -10,7 +10,7 @@ from io import StringIO
 
 def is_internal(link):
     #TODO: Metoda moze byc statyczna!
-    return link.startswith("/wiki") and "File:" not in link
+    return link is not None and link.startswith("/wiki") and "File:" not in link
 
 
 class Scraper:
