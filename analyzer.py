@@ -6,7 +6,6 @@ import pandas as pd
 from urllib.parse import unquote
 import matplotlib.pyplot as plt
 
-from wordfreq import top_n_list, word_frequency
 
 
 class Analyzer:

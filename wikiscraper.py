@@ -2,8 +2,10 @@ import time
 from urllib.parse import unquote
 from scraper import Scraper
 from analyzer import Analyzer
+import argparse
 import pandas as pd
 
+#todo: obecny design nie ma sensu, poniewaz część metod nie jest zwiazana z konkretną frazą! -> trzeba zmienic konstruktor?
 class WikiScraper:
     def __init__(self, phrase):
         self.phrase = phrase
@@ -24,7 +26,6 @@ class WikiScraper:
 
     def count_words(self):
         text_content = self.scraper.get_text_content()
-        print(text_content)
         self.analyzer.count_words(text_content)
         self.analyzer.update_word_counts()
 
@@ -69,3 +70,51 @@ class WikiScraper:
                         queue.append((link, cur_depth + 1))
             time.sleep(wait_time)
         self.analyzer.update_word_counts()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Scrape Wiki pages using WikiScraper."
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--summary", type=str, help="Searched phrase")
+
+    group.add_argument("--table", type=str, help="Searched phrase")
+
+    parser.add_argument("--number", type=int, help="Table number")
+    parser.add_argument("--first-row-is-header", action="store_true", help="Ignore first row")
+
+    group.add_argument("--count-words", type=str, help="Count words on phrase page")
+
+    group.add_argument("--analyze-relative-word-frequency", action="store_true", help="Analyze relative word frequency")
+    parser.add_argument("--mode", type=str, choices=["article", "language"], help="Analyze mode")
+    parser.add_argument("--count", type=int, help="Number of words to analyze")
+    parser.add_argument("--chart", type=str, help="Chart path")
+
+    group.add_argument("--auto-count-words", action="store_true", help="Auto count words")
+    parser.add_argument("--depth", type=int, help="Depth to analyze")
+    parser.add_argument("--wait", type=int, help="Wait time between visiting new pages in seconds")
+
+    args = parser.parse_args()
+
+    if args.summary:
+        scraper = WikiScraper(args.summary)
+        print(scraper.summary())
+    elif args.table:
+        scraper = WikiScraper(args.table)
+        scraper.table(args.number, args.first_row_is_header)
+    elif args.count_words:
+        scraper = WikiScraper(args.count_words)
+        scraper.count_words()
+    elif args.analyze_relative_word_frequency:
+        if not args.mode:
+            print("Mode parameter is required [article|language]")
+            return
+        scraper = WikiScraper("")
+        scraper.analyze_relative_word_frequency(args.mode, args.count, args.chart)
+    elif args.auto_count_words:
+        scraper = WikiScraper(args.phrase)
+        scraper.auto_count_words(args.depth, args.wait)
+
+if __name__ == "__main__":
+    main()

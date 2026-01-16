@@ -27,7 +27,6 @@ class Scraper:
 
     def scrape(self):
         # TODO: gdy zaznaczono use_local_file_instead, to powinno zamiast request uzyc lokalnego pliku html
-        print(self._get_url())
         self.soup = BeautifulSoup(requests.get(self._get_url()).text, "html.parser")
 
     def _get_content(self):
