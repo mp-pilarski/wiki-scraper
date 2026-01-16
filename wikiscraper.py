@@ -7,9 +7,9 @@ import pandas as pd
 
 #todo: obecny design nie ma sensu, poniewaz część metod nie jest zwiazana z konkretną frazą! -> trzeba zmienic konstruktor?
 class WikiScraper:
-    def __init__(self, phrase):
+    def __init__(self, phrase, local_html_file=None):
         self.phrase = phrase
-        self.scraper = Scraper(phrase)
+        self.scraper = Scraper(phrase, local_html_file)
         self.analyzer = Analyzer()
         pass
 

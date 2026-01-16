@@ -1,3 +1,5 @@
+import os
+
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -26,8 +28,17 @@ class Scraper:
         return f"{self.BASE_URL}{phrase}"
 
     def scrape(self):
-        # TODO: gdy zaznaczono use_local_file_instead, to powinno zamiast request uzyc lokalnego pliku html
-        self.soup = BeautifulSoup(requests.get(self._get_url()).text, "html.parser")
+        if self.local_html_file:
+            if not os.path.exists(self.local_html_file):
+                raise FileNotFoundError(f"File {self.local_html_file} does not exist")
+            with open(self.local_html_file, "r") as f:
+                html = f.read()
+        else:
+            response = requests.get(self._get_url())
+            response.raise_for_status() #todo: czy to wymaga try..catch ?
+            html = response.text
+
+        self.soup = BeautifulSoup(html, "html.parser")
 
     def _get_content(self):
         if self.soup is None:
