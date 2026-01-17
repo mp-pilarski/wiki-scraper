@@ -6,3 +6,4 @@ matplotlib
 lxml
 notebook
 pytest
+numpy

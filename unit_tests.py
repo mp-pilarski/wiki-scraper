@@ -3,7 +3,8 @@ import scraper
 import wikiscraper
 from analyzer import Analyzer
 from wikiscraper import WikiScraper
-
+from unittest.mock import mock_open, patch
+import json
 
 #todo: sparametryzowac testy kiedy sie da
 def test_is_internal():
@@ -46,6 +47,40 @@ def test_counting_words(analyzer):
     #sprawdzenie czy globalny stan słownika się aktualizuje
     assert analyzer.word_count['kota'] == 2 #slowo pojawilo sie w 2 miejscach
 
-def test_analyze_table(analyzer):
-    #todo: do uzupelnienia
-    pass
+# Tests for basic_update_word_counts with mocking JSON file
+
+#1. Basic test
+def test_basic_update_word_counts(analyzer):
+    initial_file_content = json.dumps({'stare': 5})
+    analyzer.count_words("stare stare stare. nowe nowe")
+
+    with patch('builtins.open', mock_open(read_data=initial_file_content)) as mocked_file:
+        analyzer.update_word_counts()
+        mocked_file.assert_called_with(analyzer.DICTIONARY_FILE, "w")
+
+        handle = mocked_file()
+        # JSON library uses write() multiple times and we want every write() call
+        written_str = "".join(call.args[0] for call in handle.write.call_args_list)
+        saved_data = json.loads(written_str)
+        # Check JSON file
+        expected_dictionary = {'stare': 8, 'nowe': 2}
+        assert saved_data == expected_dictionary
+        # Check analyzer.word_count dictionary
+        assert analyzer.word_count['stare'] == 8
+        assert analyzer.word_count['nowe'] == 2
+
+#2. JSON file does not exist and new file must be created
+def test_update_word_counts_new_file(analyzer):
+    analyzer.count_words("nowe")
+
+    with patch('os.path.exists', return_value=False):
+        with patch('builtins.open', mock_open()) as mocked_file:
+            analyzer.update_word_counts()
+
+            handle = mocked_file()
+            #JSON library uses write() multiple times and we want every write() call
+            written_str = "".join(call.args[0] for call in handle.write.call_args_list)
+            saved_data = json.loads(written_str)
+            expected_dictionary = {'nowe': 1}
+            assert saved_data == expected_dictionary
+
