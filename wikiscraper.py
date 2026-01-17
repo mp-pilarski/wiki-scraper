@@ -13,11 +13,11 @@ class WikiScraper:
         self.analyzer = Analyzer()
         pass
 
-    def summary(self):
+    def get_summary(self):
         #todo: "Obsłuż przypadki, w których artykuł dla podanej frazy nie jest dostępny na wiki."
         return self.scraper.get_summary()
 
-    def table(self, number, first_row_is_header=False):
+    def get_table(self, number, first_row_is_header=False):
         table_df = self.scraper.get_table(number, first_row_is_header)
         table_df.to_csv(f"{self.phrase}.csv")
         print(self.analyzer.analyze_table(table_df))
@@ -98,10 +98,10 @@ def main():
 
     if args.summary:
         scraper = WikiScraper(args.summary)
-        print(scraper.summary())
+        print(scraper.get_summary())
     elif args.table:
         scraper = WikiScraper(args.table)
-        scraper.table(args.number, args.first_row_is_header)
+        scraper.get_table(args.number, args.first_row_is_header)
     elif args.count_words:
         scraper = WikiScraper(args.count_words)
         scraper.count_words()
