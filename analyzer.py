@@ -5,6 +5,7 @@ import wordfreq as wq
 import pandas as pd
 from urllib.parse import unquote
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 
@@ -109,6 +110,14 @@ class Analyzer:
         plt.savefig(chart_path)
 
     def analyze_table(self, df):
-        #todo: do pozniejszego uzupelnienia!!!
-        all_values = df.value_counts()
-        return all_values
+        """
+        Counts all values in a dataframe
+        :param df: dataframe
+        :return: DataFrame with 2 columns: Value, Count
+        """
+        #1. Get all values from dataFrame and flatten it to get a Series
+        values_series = pd.Series(df.to_numpy().flatten())
+        #2. Count all values in Series
+        df_counts = values_series.value_counts().reset_index()
+        df_counts.columns = ['value', 'count']
+        return df_counts
