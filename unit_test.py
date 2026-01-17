@@ -6,29 +6,28 @@ from wikiscraper import WikiScraper
 from unittest.mock import mock_open, patch
 import json
 
-#todo: sparametryzowac testy kiedy sie da
-def test_is_internal():
-    assert scraper.is_internal("/wiki/Team_Rocket") == True
-    assert scraper.is_internal("") == False
-    assert scraper.is_internal("/wiki/File:SSBU_Team_Rocket_Outfit_and_Hat.png") == False
-    assert scraper.is_internal(None) == False
-    assert scraper.is_internal("https://www.mimuw.edu.pl/pl/") == False
+#Run unit tests with 'pytest -v' in main project directory
 
-def test_link_to_phrase():
-    wikiscraper = WikiScraper("") #todo: konstruktor do zmiany (poza tym to metoda statyczna)
-    assert wikiscraper._link_to_phrase("/wiki/Team_Rocket") == "Team Rocket"
-    assert wikiscraper._link_to_phrase("/wiki/") == ''
-    assert wikiscraper._link_to_phrase("/wiki/Team") == 'Team'
+@pytest.mark.parametrize("link, result", [("/wiki/Team_Rocket", True), ("", False),
+                                          ("/wiki/File:SSBU_Team_Rocket_Outfit_and_Hat.png", False), (None, False),
+                                          ("https://www.mimuw.edu.pl/pl/", False)])
+def test_is_internal(link, result):
+    assert scraper.is_internal(link) == result
 
-#todo: tutaj zrobic fixture
-#todo: pozniej rozbudowac test o dodatkowe funkcjonalnosci po rozbudowaniu normalizacji
+
+@pytest.mark.parametrize("link, phrase", [("/wiki/Team_Rocket", "Team Rocket"), ("/wiki/", ''), ("/wiki/Team", 'Team')])
+def test_link_to_phrase(link, phrase):
+    wikiscraper = WikiScraper("")  #todo: konstruktor do zmiany (poza tym to metoda statyczna)
+    assert wikiscraper._link_to_phrase(link) == phrase
 
 @pytest.fixture
 def analyzer():
     return Analyzer()
 
+
+#todo: pozniej rozbudowac test o dodatkowe funkcjonalnosci po rozbudowaniu normalizacji
 def test_counting_words(analyzer):
-    assert analyzer.count_words("AAA.. AAA").get("AAA", 0) == 2 #pomijanie znaków interpunkcyjnych
+    assert analyzer.count_words("AAA.. AAA").get("AAA", 0) == 2  #pomijanie znaków interpunkcyjnych
     assert analyzer.count_words("./<> <>!@#$ ^#$%@!") == {}
 
     content = "Ala ma kota ma Ala"
@@ -45,7 +44,8 @@ def test_counting_words(analyzer):
     assert 'kota.' not in result
 
     #sprawdzenie czy globalny stan słownika się aktualizuje
-    assert analyzer.word_count['kota'] == 2 #slowo pojawilo sie w 2 miejscach
+    assert analyzer.word_count['kota'] == 2  #slowo pojawilo sie w 2 miejscach
+
 
 # Tests for basic_update_word_counts with mocking JSON file
 
@@ -69,6 +69,7 @@ def test_basic_update_word_counts(analyzer):
         assert analyzer.word_count['stare'] == 8
         assert analyzer.word_count['nowe'] == 2
 
+
 #2. JSON file does not exist and new file must be created
 def test_update_word_counts_new_file(analyzer):
     analyzer.count_words("nowe")
@@ -83,4 +84,3 @@ def test_update_word_counts_new_file(analyzer):
             saved_data = json.loads(written_str)
             expected_dictionary = {'nowe': 1}
             assert saved_data == expected_dictionary
-
