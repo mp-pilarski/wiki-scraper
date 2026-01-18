@@ -14,32 +14,63 @@ class WikiScraper:
         pass
 
     def get_summary(self):
+        """
+        :return: First paragraph of the wiki page
+        """
         #todo: "Obsłuż przypadki, w których artykuł dla podanej frazy nie jest dostępny na wiki."
         return self.scraper.get_summary()
 
     def get_table(self, number, first_row_is_header=False):
+        """
+        Gets chosen table from wiki page in Pandas DataFrame and saves it in a csv file.
+
+        Method tries ignoring first_row_is_header when table has a ``<thead>`` or ``<th>`` in first row.
+        :param number: Table number on wiki page
+        :param first_row_is_header: treat first row as header (optional)
+        :return: DataFrame with 2 columns: Value, Count
+        """
         table_df = self.scraper.get_table(number, first_row_is_header)
         table_df.to_csv(f"{self.phrase}.csv")
-        print(self.analyzer.analyze_table(table_df))
-
+        return self.analyzer.analyze_table(table_df)
 
     def count_words(self):
+        """
+        Counts number of occurrences of words on wiki page and updates ``word-counts.json``
+        """
         text_content = self.scraper.get_text_content()
         self.analyzer.count_words(text_content)
         self.analyzer.update_word_counts()
 
     def analyze_relative_word_frequency(self, mode, count, chart_path=None):
+        """
+        Analyzes relative word frequency
+        :param mode: ``"article"`` or ``"language"``
+        :param count: number of words to analyze
+        :param chart_path: path to chart file (optional)
+        :return DataFrame with frequencies of ``count`` most frequent words
+        """
         df = self.analyzer.generate_frequency_table(mode, count)
-        print(df)
         if chart_path is not None:
             self.analyzer.generate_chart(df, chart_path)
+        return df
 
     def _link_to_phrase(self, link):
+        """
+        Converts a link to a wiki phrase
+        :param link:
+        :return: phrase or empty string
+        """
         link = link.replace('/wiki/', '')
         link = link.replace('_', ' ')
         return link
 
     def auto_count_words(self, depth, wait_time, links_limit = None):
+        """
+        Executes the crawler to count words across linked pages.
+        :param depth: How many links deep to crawl
+        :param wait_time: Time to wait between visiting links
+        :param links_limit: Limit to number of links from one page (optional)
+        """
         visited = set()
         queue = [(self.phrase, 0)]
         print(self.phrase)
@@ -93,6 +124,7 @@ def main():
     group.add_argument("--auto-count-words", action="store_true", help="Auto count words")
     parser.add_argument("--depth", type=int, help="Depth to analyze")
     parser.add_argument("--wait", type=int, help="Wait time between visiting new pages in seconds")
+    parser.add_argument("--links_limit", type=int, help="Limit to number of links from one page (optional)")
 
     args = parser.parse_args()
 
@@ -101,7 +133,8 @@ def main():
         print(scraper.get_summary())
     elif args.table:
         scraper = WikiScraper(args.table)
-        scraper.get_table(args.number, args.first_row_is_header)
+        count_vals = scraper.get_table(args.number, args.first_row_is_header)
+        print(count_vals)
     elif args.count_words:
         scraper = WikiScraper(args.count_words)
         scraper.count_words()
@@ -110,10 +143,11 @@ def main():
             print("Mode parameter is required [article|language]")
             return
         scraper = WikiScraper("")
-        scraper.analyze_relative_word_frequency(args.mode, args.count, args.chart)
+        df = scraper.analyze_relative_word_frequency(args.mode, args.count, args.chart)
+        print(df)
     elif args.auto_count_words:
         scraper = WikiScraper(args.phrase)
-        scraper.auto_count_words(args.depth, args.wait)
+        scraper.auto_count_words(args.depth, args.wait, args.links_limit)
 
 if __name__ == "__main__":
     main()

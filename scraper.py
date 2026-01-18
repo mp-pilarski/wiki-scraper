@@ -46,16 +46,27 @@ class Scraper:
         return self.soup.find("div", id="mw-content-text")
 
     def get_text_content(self):
+        """
+        Extracts the entire text content of the article page
+
+        Excludes navigation, footers and other side-wide elements
+        :return: A string containing the full text of the article
+        """
         return self._get_content().get_text(separator=' ')
 
     def get_summary(self):
+        """
+        Extract the text content of the first paragraph of the article
+
+        :return: The text of the first paragraph
+        """
         content = self._get_content()
         first_paragraph = content.findAll("p")[0]
         return first_paragraph.get_text()
 
     def get_table(self, number, first_row_is_header=False):
         """
-        Scrapes chosen table from wiki page and converts it to the pandas DataFrame.
+        Extracts n-th table from wiki page and converts it to the pandas DataFrame.
 
         Method tries ignoring first_row_is_header when table has a ``<thead>`` or ``<th>`` in first row.
         :param number: number of the table on page (from 1)
@@ -90,10 +101,15 @@ class Scraper:
         return df
 
     def get_internal_links(self):
+        """
+        Extracts all internal links from the article page
+
+        Excludes special pages (like: ``File:``)
+        :return: A list of unique string representing the phrases (titles) of the links
+        """
         content = self._get_content()
         unique_links = set()
         links = [] # Potrzebne, żeby metoda była deterministyczna
-        #todo: można spróbować przepisać na funkcyjną wersję?
         for link in content.findAll('a'):
             try:
                 if is_internal(link['href']):

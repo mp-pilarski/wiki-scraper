@@ -13,12 +13,20 @@ class Analyzer:
     DICTIONARY_FILE = "word-counts.json"
     WIKI_LANG = 'en'
 
-    # Fajnie byloby miec tylko jeden egzemplarz na cały program?
+    # todo: Fajnie byloby miec tylko jeden egzemplarz na cały program?
     def __init__(self):
         self.word_count = {}
         pass
 
     def update_word_counts(self, loud=True):
+        """
+        Update the JSON file containing cumulative count of words.
+
+        Reads the existing JSON file (if exists), updates the counts
+        with words from self.word_count and saves it back to the file.
+
+        :param loud: print information about JSON file state
+        """
         # Aktualizuje slownik
         #1. Pobierz slownik z pliku json
         #2. Polacz aktualne wyniki z wynikami z pliku json
@@ -43,6 +51,11 @@ class Analyzer:
             print(f"Updated word counts in {self.DICTIONARY_FILE}")
 
     def count_words(self, content):
+        """
+        Count the number of words in a given string
+        :param content: text to count words from
+        :return: dictionary with words as keys and number of occurrences as values
+        """
         # TODO: trzeba zrobic normalizacje slow - usunac znaki typu . , ? sprowadzic do tylko malych liter (bo slowo na poczatku zdania jest takie samo jak w srodku ale rozni sie wielkoscia znakow)
         translator = str.maketrans('', '', string.punctuation)
         clean_text = content.translate(translator)
@@ -58,6 +71,12 @@ class Analyzer:
         return current_count
 
     def generate_frequency_table(self, mode, count):
+        """
+        Compare the frequency of collected words against the wiki's language
+        :param mode: Number of rows to be returned
+        :param count: 'article' (sorted by article frequency), 'language' (sorted by language frequency)
+        :return: dataFrame
+        """
         self.update_word_counts(loud=False)
         if not self.word_count:
             #todo: tutaj wstawic prawdziwy wyjatek
@@ -91,6 +110,12 @@ class Analyzer:
         return df
 
     def generate_chart(self, df, chart_path):
+        """
+        Generate and save a bar chart comparing word frequencies
+        :param df: DataFrame containing word frequencies
+        (usually from ``generate_frequency_table``)
+        :param chart_path: path to save a PNG chart
+        """
         ax = df[['Frequency in article', 'Frequency in language']].plot(
             kind='bar',
             figsize=(12, 6),
@@ -111,8 +136,8 @@ class Analyzer:
 
     def analyze_table(self, df):
         """
-        Counts all values in a dataframe
-        :param df: dataframe
+        Basic statistics of table
+        :param df: dataframe with parsed table
         :return: DataFrame with 2 columns: Value, Count
         """
         #1. Get all values from dataFrame and flatten it to get a Series
