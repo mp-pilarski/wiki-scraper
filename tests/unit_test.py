@@ -1,8 +1,7 @@
 import pytest
-import scraper
-import wikiscraper
-from analyzer import Analyzer
-from wikiscraper import WikiScraper
+from wiki_scraper import scraper
+from wiki_scraper.analyzer import Analyzer
+from wiki_scraper import WikiScraper
 from unittest.mock import mock_open, patch
 import json
 
@@ -27,12 +26,12 @@ def analyzer():
 
 #todo: pozniej rozbudowac test o dodatkowe funkcjonalnosci po rozbudowaniu normalizacji
 def test_counting_words(analyzer):
-    assert analyzer.count_words("AAA.. AAA").get("AAA", 0) == 2  #pomijanie znaków interpunkcyjnych
+    assert analyzer.count_words("AAA.. AAA").get("aaa", 0) == 2  #pomijanie znaków interpunkcyjnych
     assert analyzer.count_words("./<> <>!@#$ ^#$%@!") == {}
 
     content = "Ala ma kota ma Ala"
     result = analyzer.count_words(content)
-    assert result["Ala"] == 2
+    assert result["ala"] == 2
     assert result["ma"] == 2
     assert result["kota"] == 1
 
@@ -53,6 +52,7 @@ def test_counting_words(analyzer):
 def test_basic_update_word_counts(analyzer):
     initial_file_content = json.dumps({'stare': 5})
     analyzer.count_words("stare stare stare. nowe nowe")
+    print(analyzer.word_count)
 
     with patch('builtins.open', mock_open(read_data=initial_file_content)) as mocked_file:
         analyzer.update_word_counts()

@@ -2,7 +2,7 @@ import csv
 import os
 import sys
 
-from wikiscraper import WikiScraper
+from wiki_scraper import WikiScraper
 
 HTML_TEST_FILE = "test_team_rocket.html"
 TEST_HTML_CONTENT = """

@@ -36,7 +36,6 @@ class Analyzer:
                 # File is corrupted or empty - it must be overwritten
                 if loud:
                     print(f"File {self.DICTIONARY_FILE} is corrupted - file will be overwritten")
-
         # Update JSON dictionary
         for word, count in self.word_count.items():
             json_dict[word] = json_dict.get(word, 0) + count
