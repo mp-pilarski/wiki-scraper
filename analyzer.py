@@ -1,6 +1,6 @@
 import json
 import os
-import string
+import re
 import wordfreq as wq
 import pandas as pd
 from urllib.parse import unquote
@@ -14,7 +14,6 @@ class Analyzer:
     DICTIONARY_FILE = "word-counts.json"
     WIKI_LANG = 'en'
 
-    # todo: Fajnie byloby miec tylko jeden egzemplarz na cały program?
     def __init__(self):
         self.word_count = {}
         pass
@@ -50,6 +49,16 @@ class Analyzer:
         if loud:
             print(f"Updated word counts in {self.DICTIONARY_FILE}")
 
+    def get_clean_text(self, text):
+        """
+        Convert the given text to a list of cleaned words
+        :param text: text to be cleaned
+        :return: list of cleaned words (without punctuation)
+        """
+        text = text.lower()
+        # Find all sequences of letters (ignores - and apostrophes)
+        return re.findall(r"[^\W\d_]+", text)
+
     def count_words(self, content):
         """
         Count the number of words in a given string
@@ -58,10 +67,7 @@ class Analyzer:
         :param content: text to count words from
         :return: dictionary with words as keys and number of occurrences as values
         """
-        # TODO: trzeba zrobic normalizacje slow - usunac znaki typu . , ? sprowadzic do tylko malych liter (bo slowo na poczatku zdania jest takie samo jak w srodku ale rozni sie wielkoscia znakow)
-        translator = str.maketrans('', '', string.punctuation)
-        clean_text = content.translate(translator)
-        all_words = clean_text.split()
+        all_words = self.get_clean_text(content)
 
         distinct_words = set(all_words)
         current_count = {}
