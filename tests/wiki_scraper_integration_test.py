@@ -10,10 +10,9 @@ TEST_HTML_CONTENT = """
 <html>
 <body>
     <div id="mw-content-text">
-        <p>Team Rocket is a villainous team in pursuit of evil and the exploitation of Pokémon. 
+        <p>Team Rocket is a villainous team in pursuit of evil and the exploitation of Pokémon.
         The organization is based in the Kanto and Johto regions, with a small outpost in the Sevii Islands.</p>
         <p>Another paragraph</p>
-        
         <h2>Test table</h2>
         <table>
             <tbody>
@@ -37,18 +36,22 @@ TEST_HTML_CONTENT = """
 </html>
 """
 
+
 def setup_test_file():
     with open(HTML_TEST_FILE, "w") as f:
         f.write(TEST_HTML_CONTENT)
+
 
 def cleanup_test_file():
     if os.path.exists(HTML_TEST_FILE):
         os.remove(HTML_TEST_FILE)
 
+
 def check_summary(summary, expected_start, expected_end):
     return summary and summary.startswith(expected_start) and summary.endswith(expected_end)
 
-def test_summary(wikiscraper):
+
+def summary_testing(wikiscraper):
     summary = wikiscraper.get_summary()
     if check_summary(summary, "Team Rocket", "outpost in the Sevii Islands."):
         print("Summary test passed!")
@@ -56,10 +59,12 @@ def test_summary(wikiscraper):
         print("Summary test failed!")
         sys.exit(1)
 
-def test_table(wikiscraper):
+
+def table_testing(wikiscraper):
     print("--------------")
     print("Table summary:")
     table = wikiscraper.get_table(1)
+    print(table)
     print("--------------")
     CSV_NAME = "Team Rocket.csv"
     if not os.path.exists(CSV_NAME):
@@ -74,14 +79,13 @@ def test_table(wikiscraper):
         assert reader[2] == ["1", 'Speed', "80"], "Second row is incorrect"
 
 
-
 def run_integration_test():
     setup_test_file()
     try:
         wikiscraper = WikiScraper("Team Rocket", local_html_file=HTML_TEST_FILE)
 
-        test_summary(wikiscraper)
-        test_table(wikiscraper)
+        summary_testing(wikiscraper)
+        table_testing(wikiscraper)
         print("Table test passed!")
 
         print("All tests passed!")

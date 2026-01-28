@@ -5,7 +5,8 @@ from wiki_scraper import WikiScraper
 from unittest.mock import mock_open, patch
 import json
 
-#Run unit tests with 'pytest -v' in main project directory
+# Run unit tests with 'pytest -v' in main project directory
+
 
 @pytest.mark.parametrize("link, result", [("/wiki/Team_Rocket", True), ("", False),
                                           ("/wiki/File:SSBU_Team_Rocket_Outfit_and_Hat.png", False), (None, False),
@@ -16,17 +17,18 @@ def test_is_internal(link, result):
 
 @pytest.mark.parametrize("link, phrase", [("/wiki/Team_Rocket", "Team Rocket"), ("/wiki/", ''), ("/wiki/Team", 'Team')])
 def test_link_to_phrase(link, phrase):
-    wikiscraper = WikiScraper("")  #todo: konstruktor do zmiany (poza tym to metoda statyczna)
+    wikiscraper = WikiScraper("")
     assert wikiscraper._link_to_phrase(link) == phrase
+
 
 @pytest.fixture
 def analyzer():
     return Analyzer()
 
 
-#todo: pozniej rozbudowac test o dodatkowe funkcjonalnosci po rozbudowaniu normalizacji
+# todo: pozniej rozbudowac test o dodatkowe funkcjonalnosci po rozbudowaniu normalizacji
 def test_counting_words(analyzer):
-    assert analyzer.count_words("AAA.. AAA").get("aaa", 0) == 2  #pomijanie znaków interpunkcyjnych
+    assert analyzer.count_words("AAA.. AAA").get("aaa", 0) == 2  # pomijanie znaków interpunkcyjnych
     assert analyzer.count_words("./<> <>!@#$ ^#$%@!") == {}
 
     content = "Ala ma kota ma Ala"
@@ -42,13 +44,13 @@ def test_counting_words(analyzer):
     assert 'kota' in result
     assert 'kota.' not in result
 
-    #sprawdzenie czy globalny stan słownika się aktualizuje
-    assert analyzer.word_count['kota'] == 2  #slowo pojawilo sie w 2 miejscach
+    # sprawdzenie czy globalny stan słownika się aktualizuje
+    assert analyzer.word_count['kota'] == 2  # slowo pojawilo sie w 2 miejscach
 
 
 # Tests for basic_update_word_counts with mocking JSON file
 
-#1. Basic test
+# 1. Basic test
 def test_basic_update_word_counts(analyzer):
     initial_file_content = json.dumps({'stare': 5})
     analyzer.count_words("stare stare stare. nowe nowe")
@@ -70,7 +72,7 @@ def test_basic_update_word_counts(analyzer):
         assert analyzer.word_count['nowe'] == 2
 
 
-#2. JSON file does not exist and new file must be created
+# 2. JSON file does not exist and new file must be created
 def test_update_word_counts_new_file(analyzer):
     analyzer.count_words("nowe")
 
@@ -79,7 +81,7 @@ def test_update_word_counts_new_file(analyzer):
             analyzer.update_word_counts()
 
             handle = mocked_file()
-            #JSON library uses write() multiple times and we want every write() call
+            # JSON library uses write() multiple times and we want every write() call
             written_str = "".join(call.args[0] for call in handle.write.call_args_list)
             saved_data = json.loads(written_str)
             expected_dictionary = {'nowe': 1}

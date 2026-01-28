@@ -5,20 +5,19 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from io import StringIO
 
-# TODO: wiele metod musi sprawdzac czy strona jest juz zescapowana -> czy to zmienić (kosztem prostoty konstruktora?)
-# TODO: wiele metod musi pobierac content -> moze powinien to byc atrybut klasy?
 
 def is_internal(link):
-    #TODO: Metoda moze byc statyczna!
     return link is not None and link.startswith("/wiki") and "File:" not in link
+
 
 class ScraperError(Exception):
     pass
 
+
 class Scraper:
     BASE_URL = "https://bulbapedia.bulbagarden.net/wiki/"
 
-    def __init__(self, phrase, local_html_file = None):
+    def __init__(self, phrase, local_html_file=None):
         self.phrase = phrase
         self.local_html_file = local_html_file
         self.soup = None
@@ -121,10 +120,10 @@ class Scraper:
         """
         content = self._get_content()
         unique_links = set()
-        links = [] # Necessary for deterministic crawler behavior
+        links = []  # Necessary for deterministic crawler behavior
         link_tags = content.find_all("a")
         if not link_tags:
-            return [] # Not having any links is not an error
+            return []  # Not having any links is not an error
         for link in link_tags:
             if 'href' in link and is_internal(link['href']):
                 # Delete anchors from links

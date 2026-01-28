@@ -5,10 +5,11 @@ import wordfreq as wq
 import pandas as pd
 from urllib.parse import unquote
 import matplotlib.pyplot as plt
-import numpy as np
+
 
 class AnalyzerError(Exception):
     pass
+
 
 class Analyzer:
     DICTIONARY_FILE = "word-counts.json"
@@ -93,7 +94,7 @@ class Analyzer:
         # Get 'count' most frequent words from article or wiki language
         if mode == "article":
             sorted_words = sorted(self.word_count.items(), key=lambda x: x[1], reverse=True)[:count]
-            words = {w for w,c in sorted_words}
+            words = {w for w, c in sorted_words}
         else:
             top_lang_words = wq.top_n_list(self.WIKI_LANG, count)
             words = set(top_lang_words)
@@ -122,7 +123,7 @@ class Analyzer:
         (usually from ``generate_frequency_table``)
         :param chart_path: path to save a PNG chart
         """
-        ax = df[['Frequency in article', 'Frequency in language']].plot(
+        df[['Frequency in article', 'Frequency in language']].plot(
             kind='bar',
             figsize=(12, 6),
             color=['#f1c40f', '#e74c3c'],

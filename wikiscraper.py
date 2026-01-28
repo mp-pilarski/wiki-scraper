@@ -1,6 +1,7 @@
 import argparse
 from wiki_scraper import WikiScraper, ScraperError, AnalyzerError
 
+
 def print_licence_information(website):
     print(f"Wyjście programu na licencji BY-NC-SA stworzone na podstawie artykułów dostępnych na stronie {website}")
 
@@ -57,6 +58,7 @@ def main():
     except AnalyzerError as err:
         print(f"Analyzer error: {err}")
     print_licence_information(website_link)
+
 
 if __name__ == "__main__":
     main()

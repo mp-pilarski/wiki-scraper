@@ -1,7 +1,7 @@
 import time
 from urllib.parse import unquote
 from wiki_scraper.scraper import Scraper, ScraperError
-from wiki_scraper.analyzer import Analyzer, AnalyzerError
+from wiki_scraper.analyzer import Analyzer
 
 
 class WikiController:
@@ -61,7 +61,7 @@ class WikiController:
         link = link.replace('_', ' ')
         return link
 
-    def auto_count_words(self, depth, wait_time, links_limit = None):
+    def auto_count_words(self, depth, wait_time, links_limit=None):
         """
         Executes the crawler to count words across linked pages.
         :param depth: How many links deep to crawl
