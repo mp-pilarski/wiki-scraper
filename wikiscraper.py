@@ -1,7 +1,7 @@
 import time
 from urllib.parse import unquote
 from scraper import Scraper, ScraperError
-from analyzer import Analyzer
+from analyzer import Analyzer, AnalyzerError
 import argparse
 import pandas as pd
 
@@ -153,6 +153,8 @@ def main():
             scraper.auto_count_words(args.depth, args.wait, args.links_limit)
     except ScraperError as err:
         print(f"Scraper error: {err}")
+    except AnalyzerError as err:
+        print(f"Analyzer error: {err}")
 
 if __name__ == "__main__":
     main()
