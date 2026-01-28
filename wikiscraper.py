@@ -104,6 +104,9 @@ class WikiScraper:
             time.sleep(wait_time)
         self.analyzer.update_word_counts()
 
+def print_licence_information(website):
+    print(f"Wyjście programu na licencji BY-NC-SA stworzone na podstawie artykułów dostępnych na stronie {website}")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -128,6 +131,7 @@ def main():
     parser.add_argument("--depth", type=int, help="Depth for crawler")
     parser.add_argument("--wait", type=int, help="Wait time between visiting new pages in seconds")
     parser.add_argument("--links_limit", type=int, help="Limit to number of links from one page (optional)")
+    website_link = 'https://bulbapedia.bulbagarden.net/'
 
     args = parser.parse_args()
     try:
@@ -155,6 +159,7 @@ def main():
         print(f"Scraper error: {err}")
     except AnalyzerError as err:
         print(f"Analyzer error: {err}")
+    print_licence_information(website_link)
 
 if __name__ == "__main__":
     main()
