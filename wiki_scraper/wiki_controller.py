@@ -33,10 +33,12 @@ class WikiController:
     def count_words(self):
         """
         Counts number of occurrences of words on wiki page and updates ``word-counts.json``
+        :return: dictionary with occurrences of words
         """
         text_content = self.scraper.get_text_content()
-        self.analyzer.count_words(text_content)
+        dict = self.analyzer.count_words(text_content)
         self.analyzer.update_word_counts()
+        return dict
 
     def analyze_relative_word_frequency(self, mode, count, chart_path=None):
         """
