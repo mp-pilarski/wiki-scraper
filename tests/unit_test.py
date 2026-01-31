@@ -26,7 +26,6 @@ def analyzer():
     return Analyzer()
 
 
-# todo: pozniej rozbudowac test o dodatkowe funkcjonalnosci po rozbudowaniu normalizacji
 def test_counting_words(analyzer):
     assert analyzer.count_words("AAA.. AAA").get("aaa", 0) == 2  # pomijanie znaków interpunkcyjnych
     assert analyzer.count_words("./<> <>!@#$ ^#$%@!") == {}

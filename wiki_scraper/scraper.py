@@ -82,6 +82,7 @@ class Scraper:
         :param number: number of the table on page (from 1)
         :param first_row_is_header: should the first row be treated as header (optional)
         :raises ValueError: if there is a table with that number
+        :raises ScraperError: if there is a problem with parsing table
         :return: Pandas dataframe with parsed table data
         """
         content = self._get_content()
@@ -91,7 +92,6 @@ class Scraper:
         if number < 0 or number > len(html_tables):
             raise ValueError(f"There is no table with that number. Found only {len(html_tables)} tables.")
         html_table = html_tables[number-1]
-
         # Sprawdzenie czy ignorowac first_row_is_header
         # Pierwszy zwykly wiersz nie jest nagłówkiem, gdy tabela ma <thead> lub <th> w pierwszym wierszu
         has_thead = html_table.find("thead") is not None
@@ -102,11 +102,14 @@ class Scraper:
                 has_th = True
         has_header = has_thead or has_th
 
-        if has_header or not first_row_is_header:
-            df = pd.read_html(StringIO(str(html_table)))[0]
-        else:
-            # Ustawia pierwszy wiersz tabeli jako naglowek
-            df = pd.read_html(str(html_table), header=0)[0]
+        try:
+            if has_header or not first_row_is_header:
+                df = pd.read_html(StringIO(str(html_table)))[0]
+            else:
+                # Ustawia pierwszy wiersz tabeli jako naglowek
+                df = pd.read_html(str(html_table), header=0)[0]
+        except ValueError:
+            raise ScraperError("Error parsing table")
         # Czyszczenie kolumn z samymi NaN
         df = df.dropna(axis="columns", how="all")
         return df
