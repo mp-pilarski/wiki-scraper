@@ -25,10 +25,10 @@ def main():
     parser.add_argument("--count", type=int, help="Number of words to analyze")
     parser.add_argument("--chart", type=str, help="Chart path")
 
-    group.add_argument("--auto-count-words", action="store_true", help="Start frequence for crawler")
+    group.add_argument("--auto-count-words", type=str, help="Start frequence for crawler")
     parser.add_argument("--depth", type=int, help="Depth for crawler")
-    parser.add_argument("--wait", type=int, help="Wait time between visiting new pages in seconds")
-    parser.add_argument("--links_limit", type=int, help="Limit to number of links from one page (optional)")
+    parser.add_argument("--wait", type=float, help="Wait time between visiting new pages in seconds")
+    parser.add_argument("--links-limit", type=int, help="Limit to number of links from one page (optional)")
     website_link = 'https://bulbapedia.bulbagarden.net/'
 
     args = parser.parse_args()
@@ -51,7 +51,7 @@ def main():
             df = scraper.analyze_relative_word_frequency(args.mode, args.count, args.chart)
             print(df)
         elif args.auto_count_words:
-            scraper = WikiScraper(args.phrase)
+            scraper = WikiScraper(args.auto_count_words)
             scraper.auto_count_words(args.depth, args.wait, args.links_limit)
     except ScraperError as err:
         print(f"Scraper error: {err}")

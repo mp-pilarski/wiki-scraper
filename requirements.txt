@@ -8,3 +8,4 @@ notebook
 pytest
 numpy
 seaborn
+html5lib

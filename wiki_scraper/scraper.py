@@ -124,14 +124,16 @@ class Scraper:
         content = self._get_content()
         unique_links = set()
         links = []  # Necessary for deterministic crawler behavior
-        link_tags = content.find_all("a")
+        link_tags = content.find_all("a", href=True)
         if not link_tags:
             return []  # Not having any links is not an error
         for link in link_tags:
-            if 'href' in link and is_internal(link['href']):
+            href = link.get('href')
+            if href and is_internal(href):
                 # Delete anchors from links
-                if '#' in link['href']:
-                    link['href'] = link['href'].split('#')[0]
-                if link['href'] not in unique_links:
-                    links.append(link['href'])
+                if '#' in href:
+                    href = href.split('#')[0]
+                if href not in unique_links:
+                    unique_links.add(href)
+                    links.append(href)
         return links
