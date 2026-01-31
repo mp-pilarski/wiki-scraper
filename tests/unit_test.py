@@ -56,20 +56,21 @@ def test_basic_update_word_counts(analyzer):
     analyzer.count_words("stare stare stare. nowe nowe")
     print(analyzer.word_count)
 
-    with patch('builtins.open', mock_open(read_data=initial_file_content)) as mocked_file:
-        analyzer.update_word_counts()
-        mocked_file.assert_called_with(analyzer.DICTIONARY_FILE, "w")
+    with patch('os.path.exists', return_value=True):
+        with patch('builtins.open', mock_open(read_data=initial_file_content)) as mocked_file:
+            analyzer.update_word_counts()
+            mocked_file.assert_called_with(analyzer.DICTIONARY_FILE, "w")
 
-        handle = mocked_file()
-        # JSON library uses write() multiple times and we want every write() call
-        written_str = "".join(call.args[0] for call in handle.write.call_args_list)
-        saved_data = json.loads(written_str)
-        # Check JSON file
-        expected_dictionary = {'stare': 8, 'nowe': 2}
-        assert saved_data == expected_dictionary
-        # Check analyzer.word_count dictionary
-        assert analyzer.word_count['stare'] == 8
-        assert analyzer.word_count['nowe'] == 2
+            handle = mocked_file()
+            # JSON library uses write() multiple times and we want every write() call
+            written_str = "".join(call.args[0] for call in handle.write.call_args_list)
+            saved_data = json.loads(written_str)
+            # Check JSON file
+            expected_dictionary = {'stare': 8, 'nowe': 2}
+            assert saved_data == expected_dictionary
+            # Check analyzer.word_count dictionary
+            assert analyzer.word_count['stare'] == 8
+            assert analyzer.word_count['nowe'] == 2
 
 
 # 2. JSON file does not exist and new file must be created
